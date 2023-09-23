@@ -1,1 +1,2 @@
-from .core import ChatFlow, Prompt
+from .core import ChatFlow
+from .prompt import Prompt
