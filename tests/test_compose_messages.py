@@ -137,3 +137,51 @@ def test_render_system_message_with_no_args():
             template=system_message,
             system_message_args=test_args,
         )
+
+
+# ---------------------------------------------------------------------------- #
+#                                     TODO                                     #
+# ---------------------------------------------------------------------------- #
+
+
+# def test_only_system_message_args_fail():
+#     with pytest.raises(ValueError):
+#         compose_messages(system_message_args=test_args)
+
+
+# def test_only_template_args_fail():
+#     with pytest.raises(ValueError):
+#         compose_messages(template_args=test_args)
+
+
+# def test_template_no_args_fail():
+#     with pytest.raises(ValueError):
+#         compose_messages(template=template_with_no_args, template_args=test_args)
+
+
+# def test_system_message_args_missing_fail():
+#     with pytest.raises(ValueError):
+#         compose_messages(
+#             template=template,
+#             system_message=system_message_with_args,
+#             system_message_args=test_args,
+#         )
+
+
+# def test_template_or_system_message_args_missing_fail():
+#     with pytest.raises(ValueError):
+#         compose_messages(
+#             template=template,
+#             system_message=system_message_with_args,
+#             template_args=test_args,
+#         )
+
+
+# def test_template_and_system_message_requires_args_fail():
+#     with pytest.raises(ValueError):
+#         compose_messages(template=template, system_message=system_message_with_args)
+
+
+# def test_system_message_requires_args_fail():
+#     with pytest.raises(ValueError):
+#         compose_messages(system_message=system_message_with_args)
