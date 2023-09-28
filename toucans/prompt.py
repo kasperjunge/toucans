@@ -1,16 +1,14 @@
 import os
 import re
-from typing import Any
 
+from jinja2 import Template
 from openai import ChatCompletion
+
+from .utils import extract_template_args
 
 
 class Prompt:
     """Prompt object."""
-
-    @classmethod
-    def from_hub(cls, identifier: str, api_key: str, version: str):
-        return NotImplemented()
 
     def __init__(
         self,
@@ -34,65 +32,63 @@ class Prompt:
                 "No OpenAI API key provided and none found in environment variables."
             )
 
-        # detect fields
-        self.template_fields = self._detect_template_fields()
-        self.system_message_fields = self._detect_system_message_fields()
-        self.fields = self.template_fields + self.system_message_fields
 
-    def _detect_template_fields(self):
-        if self.template:
-            return re.findall(r"\{(.*?)\}", self.template)
-        else:
-            return []
+# ---------------------------------------------------------------------------- #
+#                    Compose OpenAI Chat Completion Request                    #
+# ---------------------------------------------------------------------------- #
 
-    def _detect_system_message_fields(self):
-        if self.system_message:
-            return re.findall(r"\{(.*?)\}", self.system_message)
-        else:
-            return []
 
-    def _format_template(self, **kwargs) -> str:
-        missing_fields = [
-            field for field in self.template_fields if field not in kwargs
-        ]
-        if missing_fields:
-            raise ValueError(f"Missing fields template: {', '.join(missing_fields)}")
-        return self.template.format(**kwargs)
+def compose_messages(
+    prompt: str = None,
+    template: str = None,
+    template_args: dict = None,
+    system_message: str = None,
+    system_message_args: str = None,
+):
+    """Compose messages for OpenAI chat completion."""
 
-    def _format_system_message(self, **kwargs) -> str:
-        missing_fields = [
-            field for field in self.system_message_fields if field not in kwargs
-        ]
-        if missing_fields:
-            raise ValueError(
-                f"Missing system message fields: {', '.join(missing_fields)}"
+    # Check valid args
+    if prompt and template:
+        raise ValueError("SOME GREAT ERROR MESSAGE HERE!")
+
+    if template and not extract_template_args(template):
+        raise ValueError("SOME GREAT ERROR MESSAGE HERE!")
+
+    if system_message_args and not extract_template_args(system_message):
+        raise ValueError("SOME GREAT ERROR MESSAGE HERE!")
+
+    messages = []
+
+    # System Message
+    if system_message:
+        if system_message_args:
+            rendered_system_message = Template(system_message).render(
+                **system_message_args
             )
-        return self.system_message.format(**kwargs)
-
-    def __call__(self, *args, **kwargs):
-        """Call prompt."""
-
-        # render prompt
-        if self.template:
-            template_kwargs = {
-                k: v for k, v in kwargs.items() if k in self.template_fields
-            }
-            prompt = self._format_template(**template_kwargs)
+            messages.append({"System": rendered_system_message})
         else:
-            prompt = args[0]
+            messages.append({"System": system_message})
 
-        # render system message
-        if self.system_message:
-            system_message_kwargs = {
-                k: v for k, v in kwargs.items() if k in self.system_message_fields
-            }
-            system_message = (
-                self._format_system_message(**system_message_kwargs)
-                if self.system_message_fields
-                else self.system_message
-            )
+    # Template
+    if template:
+        rendered_template = Template(template).render(**template_args)
+        messages.append({"Human": rendered_template})
 
-        # compose messages
+    # Prompt
+    if prompt:
+        messages.append({"Human": prompt})
 
-        # ChatCompletion.create(model=self.model, messages=)
-        pass
+    return messages
+
+
+def compose_chat_completion_request(messages: list) -> dict:
+    return
+
+
+# ---------------------------------------------------------------------------- #
+#                                    Utility                                   #
+# ---------------------------------------------------------------------------- #
+
+
+def detect_template_fields():
+    return

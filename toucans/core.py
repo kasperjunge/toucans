@@ -1,6 +1,6 @@
-class ChatFlow:
+class PromptFlow:
     def __init__(self):
         pass
 
     def __repr__(self):
-        return "ChatFlow Object"
+        return "PromptFlow Object"
