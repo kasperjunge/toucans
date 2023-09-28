@@ -22,8 +22,10 @@ def test_prompt():
     assert len(messages) == 1
     assert isinstance(messages, list)
     assert isinstance(messages[0], dict)
-    assert "Human" in messages[0]
-    assert messages[0]["Human"] == prompt
+    assert "role" in messages[0]
+    assert "content" in messages[0]
+    assert messages[0]["role"] == "user"
+    assert messages[0]["content"] == prompt
 
 
 def test_template():
@@ -34,8 +36,10 @@ def test_template():
     assert len(messages) == 1
     assert isinstance(messages, list)
     assert isinstance(messages[0], dict)
-    assert "Human" in messages[0]
-    assert messages[0]["Human"] == rendered_template
+    assert "role" in messages[0]
+    assert "content" in messages[0]
+    assert messages[0]["role"] == "user"
+    assert messages[0]["content"] == rendered_template
 
 
 def test_system_message_only():
@@ -45,8 +49,10 @@ def test_system_message_only():
     assert len(messages) == 1
     assert isinstance(messages, list)
     assert isinstance(messages[0], dict)
-    assert "System" in messages[0]
-    assert messages[0]["System"] == system_message
+    assert "role" in messages[0]
+    assert "content" in messages[0]
+    assert messages[0]["role"] == "system"
+    assert messages[0]["content"] == system_message
 
 
 def test_prompt_and_system_message():
@@ -58,10 +64,14 @@ def test_prompt_and_system_message():
     assert len(messages) == 2
     assert isinstance(messages[0], dict)
     assert isinstance(messages[1], dict)
-    assert "System" in messages[0]
-    assert "Human" in messages[1]
-    assert messages[0]["System"] == system_message
-    assert messages[1]["Human"] == prompt
+    assert "role" in messages[0]
+    assert "role" in messages[1]
+    assert "content" in messages[0]
+    assert "content" in messages[1]
+    assert messages[0]["role"] == "system"
+    assert messages[0]["content"] == system_message
+    assert messages[1]["role"] == "user"
+    assert messages[1]["content"] == prompt
 
 
 def test_prompt_and_system_message_with_args():
@@ -74,10 +84,14 @@ def test_prompt_and_system_message_with_args():
     assert len(messages) == 2
     assert isinstance(messages[0], dict)
     assert isinstance(messages[1], dict)
-    assert "System" in messages[0]
-    assert "Human" in messages[1]
-    assert messages[0]["System"] == rendered_system_message_with_args
-    assert messages[1]["Human"] == prompt
+    assert "role" in messages[0]
+    assert "role" in messages[1]
+    assert "content" in messages[0]
+    assert "content" in messages[1]
+    assert messages[0]["role"] == "system"
+    assert messages[0]["content"] == rendered_system_message_with_args
+    assert messages[1]["role"] == "user"
+    assert messages[1]["content"] == prompt
 
 
 def test_template_and_system_message():
@@ -90,10 +104,14 @@ def test_template_and_system_message():
     assert len(messages) == 2
     assert isinstance(messages[0], dict)
     assert isinstance(messages[1], dict)
-    assert "System" in messages[0]
-    assert "Human" in messages[1]
-    assert messages[0]["System"] == system_message
-    assert messages[1]["Human"] == rendered_template
+    assert "role" in messages[0]
+    assert "role" in messages[1]
+    assert "content" in messages[0]
+    assert "content" in messages[1]
+    assert messages[0]["role"] == "system"
+    assert messages[0]["content"] == system_message
+    assert messages[1]["role"] == "user"
+    assert messages[1]["content"] == rendered_template
 
 
 def test_template_and_system_message_with_args():
@@ -107,10 +125,14 @@ def test_template_and_system_message_with_args():
     assert len(messages) == 2
     assert isinstance(messages[0], dict)
     assert isinstance(messages[1], dict)
-    assert "System" in messages[0]
-    assert "Human" in messages[1]
-    assert messages[0]["System"] == rendered_system_message_with_args
-    assert messages[1]["Human"] == rendered_template
+    assert "role" in messages[0]
+    assert "role" in messages[1]
+    assert "content" in messages[0]
+    assert "content" in messages[1]
+    assert messages[0]["role"] == "system"
+    assert messages[0]["content"] == rendered_system_message_with_args
+    assert messages[1]["role"] == "user"
+    assert messages[1]["content"] == rendered_template
 
 
 # ---------------------------------------------------------------------------- #

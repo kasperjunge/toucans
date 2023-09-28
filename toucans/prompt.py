@@ -95,18 +95,18 @@ def compose_messages(
             rendered_system_message = Template(system_message).render(
                 **system_message_args
             )
-            messages.append({"System": rendered_system_message})
+            messages.append({"role": "system", "content": rendered_system_message})
         else:
-            messages.append({"System": system_message})
+            messages.append({"role": "system", "content": system_message})
 
     # Template
     if template:
         rendered_template = Template(template).render(**template_args)
-        messages.append({"Human": rendered_template})
+        messages.append({"role": "user", "content": rendered_template})
 
     # Prompt
     if prompt:
-        messages.append({"Human": prompt})
+        messages.append({"role": "user", "content": prompt})
 
     return messages
 
