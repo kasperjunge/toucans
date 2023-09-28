@@ -1,4 +1,4 @@
-from jinja2 import Environment, Template, meta, nodes
+from jinja2 import Environment, meta
 
 
 def extract_template_args(template_str):
