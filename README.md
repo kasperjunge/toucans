@@ -4,8 +4,8 @@
 How to use toucans for swift prompt development.
 ### Vanilla
 ```python
-prompt = Prompt(model="gpt-3.5-turbo")
-response = prompt("Hej med dig!")
+prompt = Prompt(model="gpt-4")
+response = prompt("What is the meaning of life?")
 ```
 
 ### Template
