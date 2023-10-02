@@ -24,6 +24,8 @@ class Prompt:
         self.system_message = system_message
         self.template = template
         self.output_schema = output_schema
+        self.functions = []
+        self.function_call = ""
 
         self.template_args = (
             extract_template_args(self.template) if self.template else None
@@ -31,6 +33,10 @@ class Prompt:
         self.system_message_args = (
             extract_template_args(self.system_message) if self.system_message else None
         )
+
+        if self.output_schema:
+            self.functions = [self.output_schema]
+            self.function_call = self.output_schema["name"]
 
         # set api key
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY", None)
@@ -67,4 +73,6 @@ class Prompt:
             model=self.model,
             temperature=self.temperature,
             messages=messages,
+            functions=self.functions,
+            function_call=self.function_call,
         )
