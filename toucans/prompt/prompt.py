@@ -1,8 +1,9 @@
 import os
 from typing import Any
 
+from litellm import completion
+
 from ..utils import extract_template_args
-from .chat_completion_request import request_chat_completion
 from .messages import create_messages
 
 
@@ -62,7 +63,7 @@ class Prompt:
             system_message_args=system_message_args,
         )
 
-        return request_chat_completion(
+        return completion(
             model=self.model,
             temperature=self.temperature,
             messages=messages,
