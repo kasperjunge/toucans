@@ -1,37 +1,39 @@
+"""Test creation of messages for OpenAI chat completion API with all combinations of input."""
+
 import pytest
 from jinja2 import Template
 
-from toucans.prompt import compose_messages
+from toucans.prompt.messages import create_messages
+
+from .utils import (
+    RENDERED_SYSTEM_MESSAGE_WITH_ARGS,
+    RENDERED_TEMPLATE,
+    SYSTEM_MESSAGE,
+    SYSTEM_MESSAGE_WITH_ARGS,
+    TEMPLATE,
+    TEMPLATE_WITH_NO_ARGS,
+    TEST_ARGS,
+    TEST_PROMPT,
+)
 
 # Will the API answer if only a system message is sent?
 
-prompt = "Test prompt."
-template = "Test template {{ foo }} {{ bar }}."
-template_with_no_args = "Test template."
-system_message = "Test system message."
-system_message_with_args = "Test system message with args {{ foo }} {{ bar }}."
-test_args = {"foo": "egg", "bar": "spam"}
-rendered_template = Template(template).render(**test_args)
-rendered_system_message_with_args = Template(system_message_with_args).render(
-    **test_args
-)
-
 
 def test_prompt():
-    messages = compose_messages(prompt=prompt)
+    messages = create_messages(prompt=TEST_PROMPT)
     assert len(messages) == 1
     assert isinstance(messages, list)
     assert isinstance(messages[0], dict)
     assert "role" in messages[0]
     assert "content" in messages[0]
     assert messages[0]["role"] == "user"
-    assert messages[0]["content"] == prompt
+    assert messages[0]["content"] == TEST_PROMPT
 
 
 def test_template():
-    messages = compose_messages(
-        template=template,
-        template_args=test_args,
+    messages = create_messages(
+        template=TEMPLATE,
+        template_args=TEST_ARGS,
     )
     assert len(messages) == 1
     assert isinstance(messages, list)
@@ -39,12 +41,12 @@ def test_template():
     assert "role" in messages[0]
     assert "content" in messages[0]
     assert messages[0]["role"] == "user"
-    assert messages[0]["content"] == rendered_template
+    assert messages[0]["content"] == RENDERED_TEMPLATE
 
 
 def test_system_message_only():
-    messages = compose_messages(
-        system_message=system_message,
+    messages = create_messages(
+        system_message=SYSTEM_MESSAGE,
     )
     assert len(messages) == 1
     assert isinstance(messages, list)
@@ -52,13 +54,13 @@ def test_system_message_only():
     assert "role" in messages[0]
     assert "content" in messages[0]
     assert messages[0]["role"] == "system"
-    assert messages[0]["content"] == system_message
+    assert messages[0]["content"] == SYSTEM_MESSAGE
 
 
 def test_prompt_and_system_message():
-    messages = compose_messages(
-        prompt=prompt,
-        system_message=system_message,
+    messages = create_messages(
+        prompt=TEST_PROMPT,
+        system_message=SYSTEM_MESSAGE,
     )
     assert isinstance(messages, list)
     assert len(messages) == 2
@@ -69,16 +71,16 @@ def test_prompt_and_system_message():
     assert "content" in messages[0]
     assert "content" in messages[1]
     assert messages[0]["role"] == "system"
-    assert messages[0]["content"] == system_message
+    assert messages[0]["content"] == SYSTEM_MESSAGE
     assert messages[1]["role"] == "user"
-    assert messages[1]["content"] == prompt
+    assert messages[1]["content"] == TEST_PROMPT
 
 
 def test_prompt_and_system_message_with_args():
-    messages = compose_messages(
-        prompt=prompt,
-        system_message=system_message_with_args,
-        system_message_args=test_args,
+    messages = create_messages(
+        prompt=TEST_PROMPT,
+        system_message=SYSTEM_MESSAGE_WITH_ARGS,
+        system_message_args=TEST_ARGS,
     )
     assert isinstance(messages, list)
     assert len(messages) == 2
@@ -89,16 +91,16 @@ def test_prompt_and_system_message_with_args():
     assert "content" in messages[0]
     assert "content" in messages[1]
     assert messages[0]["role"] == "system"
-    assert messages[0]["content"] == rendered_system_message_with_args
+    assert messages[0]["content"] == RENDERED_SYSTEM_MESSAGE_WITH_ARGS
     assert messages[1]["role"] == "user"
-    assert messages[1]["content"] == prompt
+    assert messages[1]["content"] == TEST_PROMPT
 
 
 def test_template_and_system_message():
-    messages = compose_messages(
-        template=template,
-        template_args=test_args,
-        system_message=system_message,
+    messages = create_messages(
+        template=TEMPLATE,
+        template_args=TEST_ARGS,
+        system_message=SYSTEM_MESSAGE,
     )
     assert isinstance(messages, list)
     assert len(messages) == 2
@@ -109,17 +111,17 @@ def test_template_and_system_message():
     assert "content" in messages[0]
     assert "content" in messages[1]
     assert messages[0]["role"] == "system"
-    assert messages[0]["content"] == system_message
+    assert messages[0]["content"] == SYSTEM_MESSAGE
     assert messages[1]["role"] == "user"
-    assert messages[1]["content"] == rendered_template
+    assert messages[1]["content"] == RENDERED_TEMPLATE
 
 
 def test_template_and_system_message_with_args():
-    messages = compose_messages(
-        template=template,
-        template_args=test_args,
-        system_message=system_message_with_args,
-        system_message_args=test_args,
+    messages = create_messages(
+        template=TEMPLATE,
+        template_args=TEST_ARGS,
+        system_message=SYSTEM_MESSAGE_WITH_ARGS,
+        system_message_args=TEST_ARGS,
     )
     assert isinstance(messages, list)
     assert len(messages) == 2
@@ -130,9 +132,9 @@ def test_template_and_system_message_with_args():
     assert "content" in messages[0]
     assert "content" in messages[1]
     assert messages[0]["role"] == "system"
-    assert messages[0]["content"] == rendered_system_message_with_args
+    assert messages[0]["content"] == RENDERED_SYSTEM_MESSAGE_WITH_ARGS
     assert messages[1]["role"] == "user"
-    assert messages[1]["content"] == rendered_template
+    assert messages[1]["content"] == RENDERED_TEMPLATE
 
 
 # ---------------------------------------------------------------------------- #
@@ -142,63 +144,58 @@ def test_template_and_system_message_with_args():
 
 def test_prompt_template_fail():
     with pytest.raises(ValueError):
-        compose_messages(prompt, template, test_args)
+        create_messages(TEST_PROMPT, TEMPLATE, TEST_ARGS)
 
 
 def test_render_template_with_no_args():
     with pytest.raises(ValueError):
-        compose_messages(
-            template=template_with_no_args,
-            template_args=test_args,
+        create_messages(
+            template=TEMPLATE_WITH_NO_ARGS,
+            template_args=TEST_ARGS,
         )
 
 
 def test_render_system_message_with_no_args():
     with pytest.raises(ValueError):
-        compose_messages(
-            template=system_message,
-            system_message_args=test_args,
+        create_messages(
+            template=SYSTEM_MESSAGE,
+            system_message_args=TEST_ARGS,
         )
 
 
 def test_only_system_message_args_fail():
     with pytest.raises(ValueError):
-        compose_messages(system_message_args=test_args)
+        create_messages(system_message_args=TEST_ARGS)
 
 
 def test_only_template_args_fail():
     with pytest.raises(ValueError):
-        compose_messages(template_args=test_args)
-
-
-def test_template_no_args_fail():
-    with pytest.raises(ValueError):
-        compose_messages(template=template_with_no_args, template_args=test_args)
+        create_messages(template_args=TEST_ARGS)
 
 
 def test_system_message_args_missing_fail():
     with pytest.raises(ValueError):
-        compose_messages(
-            template=template,
-            system_message=system_message_with_args,
-            system_message_args=test_args,
+        create_messages(
+            template=TEMPLATE,
+            system_message=SYSTEM_MESSAGE_WITH_ARGS,
+            system_message_args=TEST_ARGS,
         )
 
 
 def test_template_or_system_message_args_missing_fail():
     with pytest.raises(ValueError):
-        compose_messages(
-            template=template,
-            system_message=system_message_with_args,
-            template_args=test_args,
+        create_messages(
+            template=TEMPLATE,
+            system_message=SYSTEM_MESSAGE_WITH_ARGS,
+            template_args=TEST_ARGS,
         )
 
 
 def test_template_and_system_message_requires_args_fail():
     with pytest.raises(ValueError):
-        compose_messages(template=template, system_message=system_message_with_args)
+        create_messages(template=TEMPLATE, system_message=SYSTEM_MESSAGE_WITH_ARGS)
 
 
 def test_system_message_requires_args_fail():
     with pytest.raises(ValueError):
-        compose_messages(system_message=system_message_with_args)
+        create_messages(system_message=SYSTEM_MESSAGE_WITH_ARGS)
