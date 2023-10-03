@@ -1,10 +1,12 @@
 import os
+import pathlib
 from typing import Any
 
 from litellm import completion
 
-from ..utils import extract_template_args
+from .io import serialize_to_dir
 from .messages import create_messages
+from .utils import extract_template_args
 
 
 class Prompt:
@@ -44,6 +46,9 @@ class Prompt:
             raise ValueError(
                 "No OpenAI API key provided and none found in environment variables."
             )
+
+    def push_to_dir(self, directory_path: pathlib.Path):
+        serialize_to_dir(directory_path=directory_path, prompt=self)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Call OpenAI chat completion API with the configured prompt setup."""
