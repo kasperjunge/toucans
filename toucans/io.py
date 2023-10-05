@@ -1,10 +1,8 @@
 import json
 import pathlib
 
-from .prompt import Prompt
 
-
-def serialize_to_dir(directory_path: pathlib.Path, prompt: Prompt):
+def serialize_to_dir(directory_path, prompt):
     if not isinstance(directory_path, pathlib.Path):
         directory_path = pathlib.Path(directory_path)
 

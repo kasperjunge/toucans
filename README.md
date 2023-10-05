@@ -18,4 +18,3 @@ prompt = Prompt(
 out = prompt(sentence="I love toucans!")
 ```
 
-

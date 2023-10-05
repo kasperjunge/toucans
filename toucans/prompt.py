@@ -81,3 +81,13 @@ class Prompt:
             functions=self.functions,
             function_call=self.function_call,
         )
+
+    def get_init_args(self) -> dict:
+        init_args = {
+            "model": self.model,
+            "temperature": self.temperature,
+            "system_message": self.system_message,
+            "template": self.template,
+            "output_schema": self.output_schema,
+        }
+        return init_args
