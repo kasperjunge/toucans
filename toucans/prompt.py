@@ -2,7 +2,7 @@ import os
 import pathlib
 from typing import Any
 
-from litellm import completion
+from litellm import acompletion, completion
 
 from .io import serialize_to_dir
 from .messages import create_messages
