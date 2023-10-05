@@ -3,7 +3,7 @@
 import pytest
 from jinja2 import Template
 
-from toucans.prompt.messages import create_messages
+from toucans.messages import create_messages
 
 from .utils import (
     RENDERED_SYSTEM_MESSAGE_WITH_ARGS,

@@ -1,6 +1,6 @@
 from jinja2 import Template
 
-from ..utils import extract_template_args
+from .utils import extract_template_args
 
 
 def validate_args(

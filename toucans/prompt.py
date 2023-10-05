@@ -1,9 +1,12 @@
 import os
+import pathlib
 from typing import Any
 
-from ..utils import extract_template_args
-from .chat_completion_request import request_chat_completion
+from litellm import completion
+
+from .io import serialize_to_dir
 from .messages import create_messages
+from .utils import extract_template_args
 
 
 class Prompt:
@@ -23,6 +26,8 @@ class Prompt:
         self.system_message = system_message
         self.template = template
         self.output_schema = output_schema
+        self.functions = []
+        self.function_call = ""
 
         self.template_args = (
             extract_template_args(self.template) if self.template else None
@@ -31,12 +36,19 @@ class Prompt:
             extract_template_args(self.system_message) if self.system_message else None
         )
 
+        if self.output_schema:
+            self.functions = [self.output_schema]
+            self.function_call = self.output_schema["name"]
+
         # set api key
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY", None)
         if not self.api_key:
             raise ValueError(
                 "No OpenAI API key provided and none found in environment variables."
             )
+
+    def push_to_dir(self, directory_path: pathlib.Path):
+        serialize_to_dir(directory_path=directory_path, prompt=self)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Call OpenAI chat completion API with the configured prompt setup."""
@@ -62,8 +74,20 @@ class Prompt:
             system_message_args=system_message_args,
         )
 
-        return request_chat_completion(
+        return completion(
             model=self.model,
             temperature=self.temperature,
             messages=messages,
+            functions=self.functions,
+            function_call=self.function_call,
         )
+
+    def get_init_args(self) -> dict:
+        init_args = {
+            "model": self.model,
+            "temperature": self.temperature,
+            "system_message": self.system_message,
+            "template": self.template,
+            "output_schema": self.output_schema,
+        }
+        return init_args
