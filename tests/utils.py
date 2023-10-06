@@ -1,13 +1,14 @@
 from jinja2 import Template
 
 # Test variables
+TEST_MODEL = "gpt-4"
 TEST_PROMPT = "Test prompt."
-TEMPLATE = "Test template {{ foo }} {{ bar }}."
-TEMPLATE_WITH_NO_ARGS = "Test template."
+PROMPT_TEMPLATE = "Test prompt template {{ foo }} {{ bar }}."
+PROMPT_TEMPLATE_WITH_NO_ARGS = "Test prompt template."
 SYSTEM_MESSAGE = "Test system message."
 SYSTEM_MESSAGE_WITH_ARGS = "Test system message with args {{ foo }} {{ bar }}."
 TEST_ARGS = {"foo": "egg", "bar": "spam"}
-RENDERED_TEMPLATE = Template(TEMPLATE).render(**TEST_ARGS)
+RENDERED_PROMPT_TEMPLATE = Template(PROMPT_TEMPLATE).render(**TEST_ARGS)
 RENDERED_SYSTEM_MESSAGE_WITH_ARGS = Template(SYSTEM_MESSAGE_WITH_ARGS).render(
     **TEST_ARGS
 )

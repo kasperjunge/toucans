@@ -1,20 +1,22 @@
 import os
-import unittest.mock as mock
 
-from litellm import mock_completion
+import pytest
 
 from toucans import Prompt
 
-from .utils import MOCK_OPENAI_CHAT_COMPLETION_RESPONSE, TEST_PROMPT
+from .utils import PROMPT_TEMPLATE, TEST_MODEL, TEST_PROMPT
 
-TEST_MODEL = "gpt-4"
-os.environ["OPENAI_API_KEY"] = "st-23mnosdf0sdfaåndfn"
+os.environ["OPENAI_API_KEY"] = "..."
 
 
-def test_vanilla():
-    with mock.patch(
-        "toucans.prompt.litellm.completion",
-        return_value=mock_completion,
-    ):
-        prompt = Prompt(model=TEST_MODEL)
-        reponse = prompt(TEST_PROMPT)
+def test_prompt_and_prompt_template_fail():
+    prompt = Prompt(
+        model=TEST_MODEL,
+        prompt_template=PROMPT_TEMPLATE,
+    )
+
+    with pytest.raises(ValueError):
+        out = prompt(TEST_PROMPT)
+
+    with pytest.raises(ValueError):
+        out = prompt(TEST_PROMPT, foo="foo", bar="bar")
