@@ -68,7 +68,7 @@ class Prompt:
         prompt_template_args = None
         if self.prompt_template_args:
             prompt_template_args = {
-                key: kwargs.get(key, None) for key in self.template_args
+                key: kwargs.get(key, None) for key in self.prompt_template_args
             }
 
         system_message_args = None
@@ -84,7 +84,7 @@ class Prompt:
             system_message=self.system_message,
             system_message_args=system_message_args,
         )
-
+        breakpoint()
         return completion(
             model=self.model,
             temperature=self.temperature,
