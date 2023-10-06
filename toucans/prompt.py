@@ -1,7 +1,10 @@
+import asyncio
+import logging
 import os
 import pathlib
 from typing import Any
 
+import aiohttp
 from litellm import acompletion, completion
 
 from .messages import create_messages
@@ -33,7 +36,7 @@ class Prompt:
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY", None)
         self._validate_init_args()
 
-        self.template_args = (
+        self.prompt_template_args = (
             extract_template_args(self.prompt_template)
             if self.prompt_template
             else None
@@ -57,17 +60,16 @@ class Prompt:
                 "Cannot provide both system_message and system_message_template together!"
             )
 
-    def push_to_dir(self, directory_path: pathlib.Path):
-        serialize_to_dir(directory_path=directory_path, prompt=self)
-
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """Call OpenAI chat completion API with the configured prompt setup."""
 
         prompt = args[0] if args else None
 
-        template_args = None
-        if self.template_args:
-            template_args = {key: kwargs.get(key, None) for key in self.template_args}
+        prompt_template_args = None
+        if self.prompt_template_args:
+            prompt_template_args = {
+                key: kwargs.get(key, None) for key in self.template_args
+            }
 
         system_message_args = None
         if self.system_message_args:
@@ -78,7 +80,7 @@ class Prompt:
         messages = create_messages(
             prompt=prompt,
             prompt_template=self.prompt_template,
-            prompt_template_args=template_args,
+            prompt_template_args=prompt_template_args,
             system_message=self.system_message,
             system_message_args=system_message_args,
         )
@@ -90,6 +92,103 @@ class Prompt:
             functions=self.functions,
             function_call=self.function_call,
         )
+
+    def batch_call(
+        self,
+        batch_args: list[dict],
+        num_retries: int = 3,
+        concurrency_limit: int = 10,
+        timeout: int = None,
+    ):
+        return asyncio.run(
+            self._run_batch_async(
+                batch_args,
+                num_retries,
+                concurrency_limit,
+                timeout,
+            )
+        )
+
+    async def _run_task(
+        self,
+        batch_arg,
+        num_retries,
+        counter,
+        total,
+    ):
+        # create messages
+        prompt_template_args = None
+        if self.prompt_template_args:
+            prompt_template_args = {
+                key: batch_arg.get(key, None) for key in self.prompt_template_args
+            }
+
+        system_message_args = None
+        if self.system_message_args:
+            system_message_args = {
+                key: batch_arg.get(key, None) for key in self.system_message_args
+            }
+        messages = create_messages(
+            prompt=None,
+            prompt_template=self.prompt_template,
+            prompt_template_args=prompt_template_args,
+            system_message=self.system_message,
+            system_message_args=system_message_args,
+        )
+        for attempt in range(num_retries + 1):
+            try:
+                response = await acompletion(
+                    model=self.model,
+                    temperature=self.temperature,
+                    messages=messages,
+                    functions=self.functions,
+                    function_call=self.function_call,
+                )
+                counter[0] += 1
+                print(f"Progress: {counter[0]}/{total} completed")
+                return response
+            except Exception as e:
+                if attempt == num_retries:
+                    logging.error(
+                        f"Request failed after {num_retries} retries with. Error: {e}"
+                    )
+                    return None
+                continue
+        return None
+
+    async def _run_batch_async(
+        self,
+        batch_args: list[dict],
+        num_retries: int = 3,
+        concurrency_limit: int = 10,
+        timeout: int = None,
+    ):
+        counter = [0]
+        total = len(batch_args)
+
+        tasks = []
+        sem = asyncio.Semaphore(concurrency_limit)
+
+        async with aiohttp.ClientSession() as session:
+            for batch_arg in batch_args:
+                async with sem:
+                    task = asyncio.create_task(
+                        self._run_task(
+                            batch_arg,
+                            num_retries,
+                            counter,
+                            total,
+                        )
+                    )
+                    tasks.append(task)
+            if timeout:
+                return await asyncio.gather(*tasks, timeout=timeout)
+            else:
+                return await asyncio.gather(*tasks)
+        return
+
+    def push_to_dir(self, directory_path: pathlib.Path):
+        serialize_to_dir(directory_path=directory_path, prompt=self)
 
     def get_init_args(self) -> dict:
         return {
