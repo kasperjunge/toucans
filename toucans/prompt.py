@@ -5,10 +5,11 @@ import pathlib
 from typing import Any
 
 import aiohttp
+import openai
 from litellm import acompletion, completion
 
 from .messages import create_messages
-from .serialize import serialize_to_dir
+from .serialize import deserialize_from_dir, serialize_to_dir
 from .utils import extract_template_args
 
 
@@ -41,8 +42,10 @@ class Prompt:
             if self.prompt_template
             else None
         )
-        self.system_message_args = (
-            extract_template_args(self.system_message) if self.system_message else None
+        self.system_message_template_args = (
+            extract_template_args(self.system_message_template)
+            if self.system_message_template
+            else None
         )
 
         if self.output_schema:
@@ -71,10 +74,10 @@ class Prompt:
                 key: kwargs.get(key, None) for key in self.prompt_template_args
             }
 
-        system_message_args = None
-        if self.system_message_args:
-            system_message_args = {
-                key: kwargs.get(key, None) for key in self.system_message_args
+        system_message_template_args = None
+        if self.system_message_template_args:
+            system_message_template_args = {
+                key: kwargs.get(key, None) for key in self.system_message_template_args
             }
 
         messages = create_messages(
@@ -82,15 +85,16 @@ class Prompt:
             prompt_template=self.prompt_template,
             prompt_template_args=prompt_template_args,
             system_message=self.system_message,
-            system_message_args=system_message_args,
+            system_message_template=self.system_message_template,
+            system_message_template_args=system_message_template_args,
         )
-        breakpoint()
+
         return completion(
             model=self.model,
             temperature=self.temperature,
             messages=messages,
             functions=self.functions,
-            function_call=self.function_call,
+            function_call={"name": self.function_call},
         )
 
     def batch_call(
@@ -123,17 +127,19 @@ class Prompt:
                 key: batch_arg.get(key, None) for key in self.prompt_template_args
             }
 
-        system_message_args = None
-        if self.system_message_args:
-            system_message_args = {
-                key: batch_arg.get(key, None) for key in self.system_message_args
+        system_message_template_args = None
+        if self.system_message_template_args:
+            system_message_template_args = {
+                key: batch_arg.get(key, None)
+                for key in self.system_message_template_args
             }
         messages = create_messages(
             prompt=None,
             prompt_template=self.prompt_template,
             prompt_template_args=prompt_template_args,
             system_message=self.system_message,
-            system_message_args=system_message_args,
+            system_message_template=self.system_message_template,
+            system_message_template_args=system_message_template_args,
         )
         for attempt in range(num_retries + 1):
             try:
@@ -142,7 +148,7 @@ class Prompt:
                     temperature=self.temperature,
                     messages=messages,
                     functions=self.functions,
-                    function_call=self.function_call,
+                    function_call={"name": self.function_call},
                 )
                 counter[0] += 1
                 print(f"Progress: {counter[0]}/{total} completed")
@@ -189,6 +195,10 @@ class Prompt:
 
     def push_to_dir(self, directory_path: pathlib.Path):
         serialize_to_dir(directory_path=directory_path, prompt=self)
+
+    @classmethod
+    def from_dir(cls, directory_path: pathlib.Path):
+        return cls(**deserialize_from_dir(directory_path))
 
     def get_init_args(self) -> dict:
         return {
