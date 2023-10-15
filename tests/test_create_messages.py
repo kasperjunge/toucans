@@ -5,31 +5,25 @@ import pytest
 from toucans.messages import create_messages
 
 from .utils import (
+    PROMPT,
     PROMPT_TEMPLATE,
-    PROMPT_TEMPLATE_WITH_NO_ARGS,
     RENDERED_PROMPT_TEMPLATE,
-    RENDERED_SYSTEM_MESSAGE_WITH_ARGS,
+    RENDERED_SYSTEM_MESSAGE_TEMPLATE,
     SYSTEM_MESSAGE,
-    SYSTEM_MESSAGE_WITH_ARGS,
+    SYSTEM_MESSAGE_TEMPLATE,
     TEST_ARGS,
-    TEST_PROMPT,
 )
-
-# from jinja2 import Template
-
-
-# Will the API answer if only a system message is sent?
 
 
 def test_prompt():
-    messages = create_messages(prompt=TEST_PROMPT)
+    messages = create_messages(prompt=PROMPT)
     assert len(messages) == 1
     assert isinstance(messages, list)
     assert isinstance(messages[0], dict)
     assert "role" in messages[0]
     assert "content" in messages[0]
     assert messages[0]["role"] == "user"
-    assert messages[0]["content"] == TEST_PROMPT
+    assert messages[0]["content"] == PROMPT
 
 
 def test_template():
@@ -59,9 +53,9 @@ def test_system_message_only():
     assert messages[0]["content"] == SYSTEM_MESSAGE
 
 
-def test_prompt_and_system_message():
+def PROMPT_and_system_message():
     messages = create_messages(
-        prompt=TEST_PROMPT,
+        prompt=PROMPT,
         system_message=SYSTEM_MESSAGE,
     )
     assert isinstance(messages, list)
@@ -75,14 +69,14 @@ def test_prompt_and_system_message():
     assert messages[0]["role"] == "system"
     assert messages[0]["content"] == SYSTEM_MESSAGE
     assert messages[1]["role"] == "user"
-    assert messages[1]["content"] == TEST_PROMPT
+    assert messages[1]["content"] == PROMPT
 
 
-def test_prompt_and_system_message_with_args():
+def test_prompt_and_system_message_template():
     messages = create_messages(
-        prompt=TEST_PROMPT,
-        system_message=SYSTEM_MESSAGE_WITH_ARGS,
-        system_message_args=TEST_ARGS,
+        prompt=PROMPT,
+        system_message_template=SYSTEM_MESSAGE_TEMPLATE,
+        system_message_template_args=TEST_ARGS,
     )
     assert isinstance(messages, list)
     assert len(messages) == 2
@@ -93,9 +87,9 @@ def test_prompt_and_system_message_with_args():
     assert "content" in messages[0]
     assert "content" in messages[1]
     assert messages[0]["role"] == "system"
-    assert messages[0]["content"] == RENDERED_SYSTEM_MESSAGE_WITH_ARGS
+    assert messages[0]["content"] == RENDERED_SYSTEM_MESSAGE_TEMPLATE
     assert messages[1]["role"] == "user"
-    assert messages[1]["content"] == TEST_PROMPT
+    assert messages[1]["content"] == PROMPT
 
 
 def test_template_and_system_message():
@@ -118,12 +112,12 @@ def test_template_and_system_message():
     assert messages[1]["content"] == RENDERED_PROMPT_TEMPLATE
 
 
-def test_template_and_system_message_with_args():
+def test_prompt_template_and_system_message_template():
     messages = create_messages(
         prompt_template=PROMPT_TEMPLATE,
         prompt_template_args=TEST_ARGS,
-        system_message=SYSTEM_MESSAGE_WITH_ARGS,
-        system_message_args=TEST_ARGS,
+        system_message_template=SYSTEM_MESSAGE_TEMPLATE,
+        system_message_template_args=TEST_ARGS,
     )
     assert isinstance(messages, list)
     assert len(messages) == 2
@@ -134,7 +128,7 @@ def test_template_and_system_message_with_args():
     assert "content" in messages[0]
     assert "content" in messages[1]
     assert messages[0]["role"] == "system"
-    assert messages[0]["content"] == RENDERED_SYSTEM_MESSAGE_WITH_ARGS
+    assert messages[0]["content"] == RENDERED_SYSTEM_MESSAGE_TEMPLATE
     assert messages[1]["role"] == "user"
     assert messages[1]["content"] == RENDERED_PROMPT_TEMPLATE
 
@@ -144,15 +138,15 @@ def test_template_and_system_message_with_args():
 # ---------------------------------------------------------------------------- #
 
 
-def test_prompt_template_fail():
+def test_prompt_and_prompt_template_fail():
     with pytest.raises(ValueError):
-        create_messages(TEST_PROMPT, PROMPT_TEMPLATE, TEST_ARGS)
+        create_messages(PROMPT, PROMPT_TEMPLATE, TEST_ARGS)
 
 
 def test_render_template_with_no_args():
     with pytest.raises(ValueError):
         create_messages(
-            prompt_template=PROMPT_TEMPLATE_WITH_NO_ARGS,
+            prompt_template=PROMPT,
             prompt_template_args=TEST_ARGS,
         )
 
@@ -161,13 +155,13 @@ def test_render_system_message_with_no_args():
     with pytest.raises(ValueError):
         create_messages(
             prompt_template=SYSTEM_MESSAGE,
-            system_message_args=TEST_ARGS,
+            system_message_template_args=TEST_ARGS,
         )
 
 
-def test_only_system_message_args_fail():
+def test_only_system_message_template_args_fail():
     with pytest.raises(ValueError):
-        create_messages(system_message_args=TEST_ARGS)
+        create_messages(system_message_template_args=TEST_ARGS)
 
 
 def test_only_template_args_fail():
@@ -175,20 +169,20 @@ def test_only_template_args_fail():
         create_messages(prompt_template_args=TEST_ARGS)
 
 
-def test_system_message_args_missing_fail():
+def test_system_message_template_args_missing_fail():
     with pytest.raises(ValueError):
         create_messages(
             prompt_template=PROMPT_TEMPLATE,
-            system_message=SYSTEM_MESSAGE_WITH_ARGS,
-            system_message_args=TEST_ARGS,
+            system_message=SYSTEM_MESSAGE_TEMPLATE,
+            system_message_template_args=TEST_ARGS,
         )
 
 
-def test_template_or_system_message_args_missing_fail():
+def test_template_or_system_message_template_args_missing_fail():
     with pytest.raises(ValueError):
         create_messages(
             prompt_template=PROMPT_TEMPLATE,
-            system_message=SYSTEM_MESSAGE_WITH_ARGS,
+            system_message=SYSTEM_MESSAGE_TEMPLATE,
             prompt_template_args=TEST_ARGS,
         )
 
@@ -196,10 +190,10 @@ def test_template_or_system_message_args_missing_fail():
 def test_template_and_system_message_requires_args_fail():
     with pytest.raises(ValueError):
         create_messages(
-            prompt_template=PROMPT_TEMPLATE, system_message=SYSTEM_MESSAGE_WITH_ARGS
+            prompt_template=PROMPT_TEMPLATE, system_message=SYSTEM_MESSAGE_TEMPLATE
         )
 
 
 def test_system_message_requires_args_fail():
     with pytest.raises(ValueError):
-        create_messages(system_message=SYSTEM_MESSAGE_WITH_ARGS)
+        create_messages(system_message=SYSTEM_MESSAGE_TEMPLATE)

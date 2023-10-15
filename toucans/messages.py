@@ -23,14 +23,15 @@ def create_messages(
     )
 
     messages = []
-    if system_message:
+    if system_message_template:
         if system_message_template_args:
-            rendered_system_message = Template(system_message).render(
+            rendered_system_message = Template(system_message_template).render(
                 **system_message_template_args
             )
             messages.append({"role": "system", "content": rendered_system_message})
-        else:
-            messages.append({"role": "system", "content": system_message})
+
+    if system_message:
+        messages.append({"role": "system", "content": system_message})
 
     if prompt_template:
         rendered_prompt_template = Template(prompt_template).render(
@@ -38,7 +39,6 @@ def create_messages(
         )
         messages.append({"role": "user", "content": rendered_prompt_template})
 
-    # Prompt
     if prompt:
         messages.append({"role": "user", "content": prompt})
 
