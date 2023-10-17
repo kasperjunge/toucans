@@ -1,7 +1,7 @@
 from jinja2 import Environment, meta
 
 
-def extract_template_args(template_str):
+def extract_template_params(template_str):
     """
     Extract variables from a Jinja2 template string.
 
@@ -19,4 +19,8 @@ def extract_template_args(template_str):
     # Use the meta module to find all variables in the AST
     variables = meta.find_undeclared_variables(ast)
 
-    return variables
+    return list(variables)
+
+
+def flatten_list(list_of_lists):
+    return [item for sublist in list_of_lists for item in sublist]

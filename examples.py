@@ -1,4 +1,4 @@
-from toucans import Prompt
+from funcflow import Prompt
 
 # ---------------------------------------------------------------------------- #
 #                                    Vanilla                                   #
