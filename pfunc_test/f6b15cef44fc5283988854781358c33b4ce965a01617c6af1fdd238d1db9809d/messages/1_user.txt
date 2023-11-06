@@ -1,1 +1,0 @@
-Answer the folasdlowing question: {{ question }}

@@ -1,7 +1,6 @@
 import asyncio
 import logging
 from dataclasses import asdict
-from typing import Any
 
 import aiohttp
 from jinja2 import Template
@@ -21,7 +20,7 @@ class PromptFunction:
     def __init__(
         self,
         model: str,
-        messages: list[str],
+        messages: list[dict[str, str]],
         temperature: float = 0.7,
         output_schema: dict = None,
         max_tokens: int = None,

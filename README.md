@@ -1,4 +1,4 @@
 # funcflow 🍉
 
 ## Usage Examples 👩‍💻
-How to use funcflow for swift prompt development.
+How to use toucans for swift prompt development.

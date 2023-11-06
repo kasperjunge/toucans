@@ -1,9 +1,9 @@
 [tool.poetry]
-name = "funcflow"
-version = "0.0.3"
+name = "toucans"
+version = "0.0.4"
 description = ""
 authors = ["Kasper Junge"]
-packages = [{ include = "funcflow", from = "src" }]
+packages = [{ include = "toucans", from = "src" }]
 readme = "README.md"
 
 [tool.poetry.dependencies]

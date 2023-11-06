@@ -23,12 +23,6 @@ class ChatAPIConfig:
 
     def unique_hash(self) -> str:
         """Generate a unique hash for the configuration."""
-        # Convert the dataclass instance to a dictionary
         data = asdict(self)
-
-        # Convert the dictionary to a canonical JSON string.
-        # This ensures that the order of keys won't affect the resulting hash.
         canonical_string = json.dumps(data, sort_keys=True)
-
-        # Compute the SHA-256 hash of this string
         return hashlib.sha256(canonical_string.encode()).hexdigest()
