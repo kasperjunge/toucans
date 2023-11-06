@@ -1,4 +1,5 @@
 # Toucans 🍉
+Toucans is a streamlined library designed for agile and flexible prompt engineering, leveraging jinja2 for dynamic prompt templating and litellm to seamlessly connect with a wide range of language model providers.
 
 ## Getting Started
 ### Installation
