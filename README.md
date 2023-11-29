@@ -13,7 +13,7 @@ To initialize a PromptFunction:
 ````python
 from toucans import PromptFunction
 
-pfunc = PromptFunction(
+prompt_func = PromptFunction(
     model="gpt-4",
     temperature=0.7,
     messages=[
@@ -27,7 +27,7 @@ pfunc = PromptFunction(
 Generate a completion by calling the PromptFunction with the desired role and question:
 
 ````python
-completion = pfunc(
+completion = prompt_func(
     role="Software Developer", 
     question="What is clean code?"
 )
@@ -37,14 +37,14 @@ completion = pfunc(
 To save the initialized PromptFunction to a directory:
 
 ````python
-pfunc.push_to_dir("./prompt_save_dir/")
+prompt_func.push_to_dir("./prompt_save_dir/")
 ````
 
 ### Load Saved Prompt Function
 To load a saved PromptFunction from a directory:
 
 ````python
-pfunc = PromptFunction.from_dir("./prompt_save_dir/")
+prompt_func = PromptFunction.from_dir("./prompt_save_dir/")
 ````
 
 By following these steps, you can easily initialize, save, and load a PromptFunction for your needs.
