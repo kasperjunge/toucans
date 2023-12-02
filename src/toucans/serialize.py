@@ -1,9 +1,9 @@
 import json
 import os
-from dataclasses import asdict, dataclass
-from typing import Dict, List, Optional, Union
+from dataclasses import asdict
+from typing import Optional
 
-from .config import ChatAPIConfig
+from .chat_api_config import ChatAPIConfig
 
 # ---------------------------------------------------------------------------- #
 #                                   Serialize                                  #

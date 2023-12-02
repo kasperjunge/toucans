@@ -1,12 +1,15 @@
 import asyncio
+import json
 import logging
+import os
 from dataclasses import asdict
 
 import aiohttp
+import requests
 from jinja2 import Template
 from litellm import acompletion, completion
 
-from .config import ChatAPIConfig
+from .chat_api_config import ChatAPIConfig
 from .serialize import (
     deserialize_default_or_latest_chat_api_config,
     serialize_chat_api_config,
@@ -22,16 +25,19 @@ class PromptFunction:
         model: str,
         messages: list[dict[str, str]],
         temperature: float = 0.7,
-        output_schema: dict = None,
+        functions: dict = None,
         max_tokens: int = None,
         **kwargs,
     ):
-        self.config = ChatAPIConfig(
+        if (not "function_call" in kwargs) and functions:
+            kwargs["function_call"] = (
+                {"name": functions[0]["name"]} if functions else None
+            )
+        self.chat_api_config = ChatAPIConfig(
             model=model,
             temperature=temperature,
             messages=messages,
-            functions=[output_schema] if output_schema else [],
-            function_call={"name": output_schema["name"]} if output_schema else None,
+            functions=functions,
             max_tokens=max_tokens,
             **kwargs,
         )
@@ -43,7 +49,7 @@ class PromptFunction:
         return completion(**request)
 
     def _prep_request(self, **kwargs):
-        request = asdict(self.config)
+        request = asdict(self.chat_api_config)
         request = {k: v for k, v in request.items() if v is not None}
         request["messages"] = self._render_messages(**kwargs)
         return request
@@ -57,7 +63,7 @@ class PromptFunction:
             raise ValueError(f"Invalid parameters found: {', '.join(invalid_keys)}")
 
         rendered_messages = []
-        for message in self.config.messages:
+        for message in self.chat_api_config.messages:
             template = Template(message["content"])
             rendered_content = template.render(**kwargs)
             rendered_messages.append(
@@ -148,4 +154,63 @@ class PromptFunction:
         )
 
     def push_to_dir(self, save_dir: str):
-        serialize_chat_api_config(self.config, save_dir)
+        serialize_chat_api_config(self.chat_api_config, save_dir)
+
+    def push_to_hub(self, name: str):
+        """
+        Pushes the current instance to the Hub, creating a new entry or updating an existing one.
+        """
+        api_url = os.getenv("HUB_API_URL")
+        if not api_url:
+            raise ValueError("HUB_API_URL environment variable not set")
+
+        endpoint = f"{api_url}/prompt-functions/"
+
+        data = {
+            "name": name,
+            "hash_id": self.chat_api_config.unique_hash(),
+            "chat_api_config": asdict(self.chat_api_config),
+        }
+
+        headers = {"Content-Type": "application/json"}
+
+        if self._exists_in_hub(api_url, name):
+            raise Exception(
+                f"Failed pushing to hub because prompt function already exist."
+            )
+        else:
+            breakpoint()
+            response = requests.post(endpoint, data=json.dumps(data), headers=headers)
+
+        if response.status_code not in [200, 201]:
+            raise Exception(f"Failed to push to hub: {response.text}")
+        return response.json()
+
+    def _exists_in_hub(self, api_url: str, name: str):
+        """
+        Checks if the prompt function exists in the Hub.
+
+        :param api_url: The URL of the Hub API endpoint.
+        :param name: The name of the prompt function to check.
+        """
+        response = requests.get(f"{api_url}/prompt-functions/{name}")
+        return response.status_code == 200
+
+    @classmethod
+    def from_hub(cls, name: str):
+        """
+        Retrieves a PromptFunction instance from the Hub by its name.
+        """
+        api_url = os.getenv("HUB_API_URL")
+        if not api_url:
+            raise ValueError("HUB_API_URL environment variable not set")
+
+        response = requests.get(f"{api_url}/prompt-functions/{name}")
+
+        if response.status_code != 200:
+            raise Exception(f"Failed to fetch from hub: {response.text}")
+
+        data = response.json()
+        model = data["chat_api_config"].pop("model")
+        messages = data["chat_api_config"].pop("messages")
+        return cls(model=model, messages=messages, **data["chat_api_config"])
