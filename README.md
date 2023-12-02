@@ -1,6 +1,6 @@
 
 <h1 align="center">
-<img src="static/img/logo.png" width="300">
+<img src="static/img/logo.png" width="250">
 </h1>
 
 Toucans is a streamlined library designed for agile and flexible prompt engineering, leveraging jinja2 for dynamic prompt templating and litellm to seamlessly connect with a wide range of language model providers.
