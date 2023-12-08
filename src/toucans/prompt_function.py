@@ -26,18 +26,16 @@ class PromptFunction:
         messages: list[dict[str, str]],
         temperature: float = 0.7,
         functions: dict = None,
+        function_call: str = "",
         max_tokens: int = None,
         **kwargs,
     ):
-        if (not "function_call" in kwargs) and functions:
-            kwargs["function_call"] = (
-                {"name": functions[0]["name"]} if functions else None
-            )
         self.chat_api_config = ChatAPIConfig(
             model=model,
             temperature=temperature,
             messages=messages,
             functions=functions,
+            function_call=function_call,
             max_tokens=max_tokens,
             **kwargs,
         )
@@ -174,27 +172,11 @@ class PromptFunction:
 
         headers = {"Content-Type": "application/json"}
 
-        if self._exists_in_hub(api_url, name):
-            raise Exception(
-                f"Failed pushing to hub because prompt function already exist."
-            )
-        else:
-            breakpoint()
-            response = requests.post(endpoint, data=json.dumps(data), headers=headers)
+        response = requests.post(endpoint, data=json.dumps(data), headers=headers)
 
         if response.status_code not in [200, 201]:
             raise Exception(f"Failed to push to hub: {response.text}")
         return response.json()
-
-    def _exists_in_hub(self, api_url: str, name: str):
-        """
-        Checks if the prompt function exists in the Hub.
-
-        :param api_url: The URL of the Hub API endpoint.
-        :param name: The name of the prompt function to check.
-        """
-        response = requests.get(f"{api_url}/prompt-functions/{name}")
-        return response.status_code == 200
 
     @classmethod
     def from_hub(cls, name: str):
