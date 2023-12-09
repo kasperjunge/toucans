@@ -3,17 +3,14 @@ import json
 import logging
 import os
 from dataclasses import asdict
+from typing import List, Optional, Union
 
 import aiohttp
 import requests
 from jinja2 import Template
 from litellm import acompletion, completion
 
-from .chat_api_config import ChatAPIConfig
-from .serialize import (
-    deserialize_default_or_latest_chat_api_config,
-    serialize_chat_api_config,
-)
+from .completion_config import CompletionConfig
 from .utils import extract_template_params, flatten_list
 
 
@@ -23,20 +20,24 @@ class PromptFunction:
     def __init__(
         self,
         model: str,
-        messages: list[dict[str, str]],
+        messages: List[dict],
         temperature: float = 0.7,
-        functions: dict = None,
-        function_call: str = "",
-        max_tokens: int = None,
+        max_tokens: Optional[float] = None,
+        response_format: Optional[dict] = None,
+        seed: Optional[int] = None,
+        tools: Optional[List] = None,
+        tool_choice: Optional[str] = None,
         **kwargs,
     ):
-        self.chat_api_config = ChatAPIConfig(
+        self.completion_config = CompletionConfig(
             model=model,
-            temperature=temperature,
             messages=messages,
-            functions=functions,
-            function_call=function_call,
+            temperature=temperature,
             max_tokens=max_tokens,
+            tools=tools,
+            tool_choice=tool_choice,
+            response_format=response_format,
+            seed=seed,
             **kwargs,
         )
 
@@ -47,7 +48,7 @@ class PromptFunction:
         return completion(**request)
 
     def _prep_request(self, **kwargs):
-        request = asdict(self.chat_api_config)
+        request = asdict(self.completion_config)
         request = {k: v for k, v in request.items() if v is not None}
         request["messages"] = self._render_messages(**kwargs)
         return request
@@ -61,7 +62,7 @@ class PromptFunction:
             raise ValueError(f"Invalid parameters found: {', '.join(invalid_keys)}")
 
         rendered_messages = []
-        for message in self.chat_api_config.messages:
+        for message in self.completion_config.messages:
             template = Template(message["content"])
             rendered_content = template.render(**kwargs)
             rendered_messages.append(
@@ -140,20 +141,6 @@ class PromptFunction:
                 continue
         return None
 
-    @classmethod
-    def from_dir(cls, load_dir):
-        config = deserialize_default_or_latest_chat_api_config(load_dir)
-        return cls(
-            model=config.model,
-            messages=config.messages,
-            temperature=config.temperature,
-            output_schema=config.functions,
-            max_tokens=config.max_tokens,
-        )
-
-    def push_to_dir(self, save_dir: str):
-        serialize_chat_api_config(self.chat_api_config, save_dir)
-
     def push_to_hub(self, name: str):
         """
         Pushes the current instance to the Hub, creating a new entry or updating an existing one.
@@ -166,8 +153,8 @@ class PromptFunction:
 
         data = {
             "name": name,
-            "hash_id": self.chat_api_config.unique_hash(),
-            "chat_api_config": asdict(self.chat_api_config),
+            "hash_id": self.completion_config.unique_hash(),
+            "completion_config": asdict(self.completion_config),
         }
 
         headers = {"Content-Type": "application/json"}
@@ -193,6 +180,6 @@ class PromptFunction:
             raise Exception(f"Failed to fetch from hub: {response.text}")
 
         data = response.json()
-        model = data["chat_api_config"].pop("model")
-        messages = data["chat_api_config"].pop("messages")
-        return cls(model=model, messages=messages, **data["chat_api_config"])
+        model = data["completion_config"].pop("model")
+        messages = data["completion_config"].pop("messages")
+        return cls(model=model, messages=messages, **data["completion_config"])

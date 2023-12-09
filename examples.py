@@ -1,11 +1,16 @@
+from dotenv import load_dotenv
+
 from toucans import PromptFunction
 
+load_dotenv()
+
+name = "Q&A"
+
 # ---------------------------------------------------------------------------- #
-#                      Initialize and save Prompt Function                     #
+#                                     Push                                     #
 # ---------------------------------------------------------------------------- #
 
-# init prompt function
-prompt_func = PromptFunction(
+prompt = PromptFunction(
     model="gpt-4",
     temperature=0.7,
     messages=[
@@ -14,15 +19,13 @@ prompt_func = PromptFunction(
     ],
 )
 
-# generate completion
-completion = prompt_func(role="Software Developer", question="What is clean code?")
+completion = prompt(role="Software Developer", question="What is clean code?")
 
-# save to directory
-prompt_func.push_to_dir("./prompt_save_dir/")
+prompt.push_to_hub(name)
+
 
 # ---------------------------------------------------------------------------- #
-#                          Load saved Prompt Function                          #
+#                                     Pull                                     #
 # ---------------------------------------------------------------------------- #
 
-# load from directory
-prompt_func = PromptFunction.from_dir("./prompt_save_dir/")
+prompt = PromptFunction.from_hub(name)
