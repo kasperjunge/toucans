@@ -19,9 +19,10 @@ prompt = PromptFunction(
     ],
 )
 
-completion = prompt(role="Software Developer", question="What is clean code?")
 
 prompt.push_to_hub(name)
+
+# completion = prompt(role="Software Developer", question="What is clean code?")
 
 
 # ---------------------------------------------------------------------------- #
