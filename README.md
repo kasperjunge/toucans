@@ -38,17 +38,17 @@ completion = prompt_func(
 ````
 
 ### Save Prompt Function
-To save the initialized PromptFunction to a directory:
+To save the initialized PromptFunction to the hub:
 
 ````python
-prompt_func.push_to_dir("./prompt_save_dir/")
+prompt_func.push_to_hub("QA")
 ````
 
 ### Load Saved Prompt Function
-To load a saved PromptFunction from a directory:
+To load a saved PromptFunction from the hub:
 
 ````python
-prompt_func = PromptFunction.from_dir("./prompt_save_dir/")
+prompt_func = PromptFunction.from_hub("QA")
 ````
 
 By following these steps, you can easily initialize, save, and load a PromptFunction for your needs.
