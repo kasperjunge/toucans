@@ -56,7 +56,7 @@ To load a saved PromptFunction from a directory or the [toucans hub](https://git
 prompt_func = PromptFunction.from_dir("./prompt_save_dir/")
 
 # Load from toucans hub
-prompt_func.from_hub("./prompt_save_dir/")
+prompt_func = PromptFunction.from_hub("./prompt_save_dir/")
 ````
 
 Loading from [Toucans Hub](https://github.com/kasperjunge/toucans-hub) requires that you run a hub and connect to it by setting the HUB_API_URL environment variable.
