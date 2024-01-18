@@ -17,7 +17,7 @@ To initialize a PromptFunction:
 ````python
 from toucans import PromptFunction
 
-prompt_func = PromptFunction(
+qa_func = PromptFunction(
     model="gpt-4",
     temperature=0.7,
     messages=[
@@ -31,7 +31,7 @@ prompt_func = PromptFunction(
 Generate a completion by calling the PromptFunction with the desired role and question:
 
 ````python
-completion = prompt_func(
+completion = qa_func(
     role="Software Developer", 
     question="What is clean code?"
 )
@@ -42,10 +42,10 @@ To save the initialized PromptFunction to a directory or the [toucans hub](https
 
 ````python
 # Push to dir (not implemented yet)
-prompt_func.push_to_dir("./prompt_save_dir/")
+qa_func.push_to_dir("./qa/")
 
 # Push to toucans hub
-prompt_func.push_to_hub("./prompt_save_dir/")
+qa_func.push_to_hub("juunge/qa")
 ````
 
 ### Load Saved Prompt Function
@@ -53,10 +53,10 @@ To load a saved PromptFunction from a directory or the [toucans hub](https://git
 
 ````python
 # Load from dir (not implemented yet)
-prompt_func = PromptFunction.from_dir("./prompt_save_dir/")
+qa_func = PromptFunction.from_dir("./qa/")
 
 # Load from toucans hub
-prompt_func = PromptFunction.from_hub("./prompt_save_dir/")
+qa_func = PromptFunction.from_hub("juunge/qa")
 ````
 
 Loading from [Toucans Hub](https://github.com/kasperjunge/toucans-hub) requires that you run a hub and connect to it by setting the HUB_API_URL environment variable.

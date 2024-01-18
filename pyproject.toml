@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "toucans"
-version = "0.0.12"
+version = "0.0.13"
 description = ""
 authors = ["Kasper Junge"]
 packages = [{ include = "toucans", from = "src" }]
