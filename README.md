@@ -38,17 +38,27 @@ completion = prompt_func(
 ````
 
 ### Save Prompt Function
-To save the initialized PromptFunction to a directory:
+To save the initialized PromptFunction to a directory or the [toucans hub](https://github.com/kasperjunge/toucans-hub):
 
 ````python
+# Push to dir (not implemented yet)
 prompt_func.push_to_dir("./prompt_save_dir/")
+
+# Push to toucans hub
+prompt_func.push_to_hub("./prompt_save_dir/")
 ````
 
 ### Load Saved Prompt Function
-To load a saved PromptFunction from a directory:
+To load a saved PromptFunction from a directory or the [toucans hub](https://github.com/kasperjunge/toucans-hub):
 
 ````python
+# Load from dir (not implemented yet)
 prompt_func = PromptFunction.from_dir("./prompt_save_dir/")
+
+# Load from toucans hub
+prompt_func.from_hub("./prompt_save_dir/")
 ````
+
+Loading from [Toucans Hub](https://github.com/kasperjunge/toucans-hub) requires that you run a hub and connect to it by setting the HUB_API_URL environment variable.
 
 By following these steps, you can easily initialize, save, and load a PromptFunction for your needs.

@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from dataclasses import asdict
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import aiohttp
 import requests
