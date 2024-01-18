@@ -38,7 +38,6 @@ completion = prompt_func(
 ````
 
 ### Save Prompt Function
-<<<<<<< HEAD
 To save the initialized PromptFunction to a directory or the [toucans hub](https://github.com/kasperjunge/toucans-hub):
 
 ````python
