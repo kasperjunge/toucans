@@ -60,5 +60,3 @@ qa_func = PromptFunction.from_hub("juunge/qa")
 ````
 
 Loading from [Toucans Hub](https://github.com/kasperjunge/toucans-hub) requires that you run a hub and connect to it by setting the HUB_API_URL environment variable.
-
-By following these steps, you can easily initialize, save, and load a PromptFunction for your needs.
