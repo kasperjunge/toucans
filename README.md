@@ -1,62 +1,76 @@
-
 <h1 align="center">
 <img src="static/img/logo.png" width="250">
 </h1>
 
-Toucans is a streamlined library designed for agile and flexible prompt engineering, leveraging jinja2 for dynamic prompt templating and litellm to seamlessly connect with a wide range of language model providers.
+No bullshit prompt engineering using jinja2 for dynamic prompt templating and LiteLLM to seamlessly use a wide range of LLM providers.
 
 ## Getting Started
+
 ### Installation
+
 ````
 pip install toucans
 ````
 
-### Initialize Prompt Function
-To initialize a PromptFunction:
+### Usage
+
+Initialize a PromptFunction:
 
 ````python
 from toucans import PromptFunction
 
-qa_func = PromptFunction(
+sentiment = PromptFunction(
     model="gpt-4",
     temperature=0.7,
     messages=[
-        {"role": "system", "content": "You are a helpful {{ role }}."},
-        {"role": "user", "content": "Answer the following question: {{ question }}"},
+        {"role": "system", "content": "You are a helpful mood-sensitive agent."},
+        {"role": "user", "content": "Determine the sentiment of the sentence: {{ sentence }}"},
     ],
 )
 ````
 
 ### Generate Completion
-Generate a completion by calling the PromptFunction with the desired role and question:
+
+Generate a completion by calling the PromptFunction with a sentence:
 
 ````python
-completion = qa_func(
-    role="Software Developer", 
-    question="What is clean code?"
-)
+completion = sentiment(sentence="I'm so happy!")
 ````
 
-### Save Prompt Function
-To save the initialized PromptFunction to a directory or the [toucans hub](https://github.com/kasperjunge/toucans-hub):
+### Batch Generate Completions in Parallel
+
+````python
+batch_args = [
+    {"sentence": "Toucans is nice Python package!"}, 
+    {"sentence": "I hate bloated prompt engineering frameworks!"}
+]
+
+completion_batch = sentiment.batch_call(batch_args=batch_args)
+````
+
+### Local PromptFunction Serialization
+
+Save/load the PromptFunction to a directory:
 
 ````python
 # Push to dir (not implemented yet)
-qa_func.push_to_dir("./qa/")
+sentiment.push_to_dir("./sentiment/")
 
-# Push to toucans hub
-qa_func.push_to_hub("juunge/qa")
+# Load from dir (not implemented yet)
+sentiment = PromptFunction.from_dir("./sentiment/")
 ````
 
-### Load Saved Prompt Function
-To load a saved PromptFunction from a directory or the [toucans hub](https://github.com/kasperjunge/toucans-hub):
+### Toucans Hub
+
+Push/pull the PromptFunction from the [toucans hub](https://github.com/kasperjunge/toucans-hub):
 
 ````python
-# Load from dir (not implemented yet)
-qa_func = PromptFunction.from_dir("./qa/")
+# Push to hub
+sentiment.push_to_hub("juunge/sentiment")
 
-# Load from toucans hub
-qa_func = PromptFunction.from_hub("juunge/qa")
+# Load from hub
+sentiment = PromptFunction.from_hub("juunge/sentiment/")
+
 ````
 
-Loading from [Toucans Hub](https://github.com/kasperjunge/toucans-hub) requires that you run a hub and connect to it by setting the HUB_API_URL environment variable.
+For now,loading from the [Toucans Hub](https://github.com/kasperjunge/toucans-hub) requires hosting an instance of it yourself and  set the HUB_API_URL environment variable.
