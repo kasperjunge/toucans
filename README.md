@@ -6,13 +6,13 @@ No bullshit prompt engineering using jinja2 for dynamic prompt templating and Li
 
 ## Getting Started
 
-### Installation
+### 🔥 Installation
 
 ````
 pip install toucans
 ````
 
-### Usage
+### 🔥 Usage
 
 Initialize a PromptFunction:
 
@@ -29,7 +29,7 @@ sentiment = PromptFunction(
 )
 ````
 
-### Generate Completion
+### 🔥 Generate Completion
 
 Generate a completion by calling the PromptFunction with a sentence:
 
@@ -37,7 +37,7 @@ Generate a completion by calling the PromptFunction with a sentence:
 completion = sentiment(sentence="I'm so happy!")
 ````
 
-### Batch Generate Completions in Parallel
+### 🔥 Batch Generate Completions in Parallel
 
 ````python
 batch_args = [
@@ -48,7 +48,7 @@ batch_args = [
 completion_batch = sentiment.batch_call(batch_args=batch_args)
 ````
 
-### Local PromptFunction Serialization
+### 🔥 Local PromptFunction Serialization
 
 Save/load the PromptFunction to a directory:
 
@@ -60,7 +60,7 @@ sentiment.push_to_dir("./sentiment/")
 sentiment = PromptFunction.from_dir("./sentiment/")
 ````
 
-### Toucans Hub
+### 🔥 The Toucans Hub
 
 Push/pull the PromptFunction from the [toucans hub](https://github.com/kasperjunge/toucans-hub):
 
