@@ -11,10 +11,11 @@ from jinja2 import Template
 from litellm import acompletion, completion
 
 from .completion_config import CompletionConfig
+from .serialize import CompletionConfigSerializer
 from .utils import extract_template_params, flatten_list
 
 
-class PromptFunction:
+class PromptFunction(CompletionConfigSerializer):
     """Prompt function class."""
 
     def __init__(
