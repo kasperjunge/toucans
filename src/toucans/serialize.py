@@ -16,13 +16,8 @@ class CompletionConfigSerializer:
     @classmethod
     def from_dir(cls, load_dir):
         config = deserialize_default_or_latest_completion_config(load_dir)
-        return cls(
-            model=config.model,
-            messages=config.messages,
-            temperature=config.temperature,
-            output_schema=config.functions,
-            max_tokens=config.max_tokens,
-        )
+
+        return cls(**asdict(config))
 
     def push_to_dir(self, save_dir: str):
         serialize_completion_config(self.completion_config, save_dir)
