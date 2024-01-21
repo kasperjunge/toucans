@@ -69,7 +69,7 @@ Push/pull the PromptFunction from the [toucans hub](https://github.com/kasperjun
 sentiment.push_to_hub("juunge/sentiment")
 
 # Load from hub
-sentiment = PromptFunction.from_hub("juunge/sentiment/")
+sentiment = PromptFunction.from_hub("juunge/sentiment")
 
 ````
 
