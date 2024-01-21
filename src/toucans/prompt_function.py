@@ -6,16 +6,15 @@ from dataclasses import asdict
 from typing import List, Optional
 
 import aiohttp
-import requests
 from jinja2 import Template
 from litellm import acompletion, completion
 
 from .completion_config import CompletionConfig
-from .serialize import CompletionConfigSerializer
+from .push_pull import DirectoryPushPullMixin, HubPushPullMixin
 from .utils import extract_template_params, flatten_list
 
 
-class PromptFunction(CompletionConfigSerializer):
+class PromptFunction(DirectoryPushPullMixin, HubPushPullMixin):
     """Prompt function class."""
 
     def __init__(
@@ -141,46 +140,3 @@ class PromptFunction(CompletionConfigSerializer):
                     return None
                 continue
         return None
-
-    def push_to_hub(self, name: str):
-        """
-        Pushes the current instance to the Hub, creating a new entry or updating an existing one.
-        """
-        api_url = os.getenv("HUB_API_URL")
-        if not api_url:
-            raise ValueError("HUB_API_URL environment variable not set")
-
-        endpoint = f"{api_url}/prompt-functions/"
-
-        data = {
-            "name": name,
-            "hash_id": self.completion_config.unique_hash(),
-            "completion_config": asdict(self.completion_config),
-        }
-
-        headers = {"Content-Type": "application/json"}
-
-        response = requests.post(endpoint, data=json.dumps(data), headers=headers)
-
-        if response.status_code not in [200, 201]:
-            raise Exception(f"Failed to push to hub: {response.text}")
-        return response.json()
-
-    @classmethod
-    def from_hub(cls, name: str):
-        """
-        Retrieves a PromptFunction instance from the Hub by its name.
-        """
-        api_url = os.getenv("HUB_API_URL")
-        if not api_url:
-            raise ValueError("HUB_API_URL environment variable not set")
-
-        response = requests.get(f"{api_url}/prompt-functions/{name}")
-
-        if response.status_code != 200:
-            raise Exception(f"Failed to fetch from hub: {response.text}")
-
-        data = response.json()
-        model = data["completion_config"].pop("model")
-        messages = data["completion_config"].pop("messages")
-        return cls(model=model, messages=messages, **data["completion_config"])
